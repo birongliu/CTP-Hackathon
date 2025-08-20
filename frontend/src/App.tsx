@@ -1,13 +1,25 @@
 import { useState } from 'react'
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { createClient } from '@supabase/supabase-js'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
+  const supabase = createClient(
+    process.env.REACT_APP_SUPABASE_URL,
+    process.env.REACT_APP_ANON_KEY
+  )
   const [count, setCount] = useState(0)
 
   return (
     <>
+      <Auth
+        supabaseClient={supabase}
+        /* Apply predefined theme */
+        appearance={{ theme: ThemeSupa }}
+      />
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
