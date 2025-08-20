@@ -1,0 +1,28 @@
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Python compiled files
+*.pyc
+__pycache__/
+
+# Instance folder (if used)
+instance/
+
+# Test-related files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution and build artifacts
+dist/
+build/
+*.egg-info/
+
+# Editor-specific files (examples)
+.vscode/
+.idea/
+
+# Environment variables
+.env
