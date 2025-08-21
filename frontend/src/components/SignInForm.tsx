@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import "../styles/SignInForm.css"
+import "../styles/SignInOutForm.css"
 import logo from "../assets/logo.png"
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -65,7 +65,7 @@ export default function SignInForm() {
     
     <Form onSubmit={handleSignIn}>
       <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label htmlFor="email" className="form-text">Email</Form.Label>
+        <Form.Label className="form-text">Email</Form.Label>
         <Form.Control 
           type="email" 
           placeholder="Enter email"  
@@ -76,7 +76,7 @@ export default function SignInForm() {
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label htmlFor="password" className="form-text">Password</Form.Label>
+        <Form.Label className="form-text">Password</Form.Label>
         <Form.Control 
           type="password" 
           placeholder="Password"
@@ -85,9 +85,9 @@ export default function SignInForm() {
           required
         />
       </Form.Group>
-      <Button className="submit-btn" type="submit" > Login </Button>~
+      <Button className="submit-btn" type="submit" > Login </Button>
     </Form>
-    <p>
+    <p className="question-link">
         Don't have an account? <Link to="/signup">Sign-up</Link>
     </p>
 
