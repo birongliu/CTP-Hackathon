@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interview API Testing</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      button {
+        padding: 8px 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      textarea {
+        width: 100%;
+        height: 100px;
+        margin-top: 10px;
+      }
+      .response {
+        margin-top: 15px;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        white-space: pre-wrap;
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+      }
+      select,
+      input {
+        margin-top: 5px;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Interview API Testing</h1>
+
+    <div class="section">
+      <h2>Authentication</h2>
+      <div id="login-section">
+        <label for="email">Email:</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter your email"
+          style="width: 100%"
+        />
+
+        <label for="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter your password"
+          style="width: 100%"
+        />
+
+        <button id="loginBtn">Login</button>
+        <button id="signupBtn">Sign Up</button>
+        <button id="logoutBtn">Logout</button>
+        <button id="checkCookiesBtn">Check Cookie Status</button>
+        <div id="authResponse" class="response"></div>
+      </div>
+
+      <div style="margin-top: 15px">
+        <p>Or use an auth token directly:</p>
+        <input
+          type="text"
+          id="token"
+          placeholder="Enter your auth token (with or without Bearer prefix)"
+          style="width: 100%"
+        />
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>1. Start Interview</h2>
+      <label for="track">Interview Track:</label>
+      <select id="track">
+        <option value="behavioral">Behavioral</option>
+        <option value="technical">Technical</option>
+      </select>
+
+      <label for="numQuestions">Number of Questions:</label>
+      <input type="number" id="numQuestions" value="3" min="1" max="10" />
+
+      <button id="startBtn">Start Interview</button>
+      <div id="startResponse" class="response"></div>
+    </div>
+
+    <div class="section">
+      <h2>2. Answer Question</h2>
+      <div id="currentQuestion" style="font-weight: bold; margin-bottom: 10px">
+        No active question
+      </div>
+      <textarea id="answer" placeholder="Type your answer here..."></textarea>
+      <button id="submitAnswer">Submit Answer</button>
+      <div id="answerResponse" class="response"></div>
+    </div>
+
+    <div class="section">
+      <h2>3. Get Interview Summary</h2>
+      <button id="getSummary">Get Summary</button>
+      <div id="summaryResponse" class="response"></div>
+    </div>
+  </body>
+  <script>
+    // Store session state
+    let sessionState = {
+      sessionId: null,
+      currentQuestion: null,
+      history: [],
+      isComplete: false,
+    };
+
+    // Authentication state
+    let authState = {
+      isLoggedIn: false,
+      user: null,
+    };
+
+    // DOM elements
+    const tokenInput = document.getElementById("token");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const checkCookiesBtn = document.getElementById("checkCookiesBtn");
+    const authResponse = document.getElementById("authResponse");
+    const trackSelect = document.getElementById("track");
+    const numQuestionsInput = document.getElementById("numQuestions");
+    const startBtn = document.getElementById("startBtn");
+    const startResponse = document.getElementById("startResponse");
+    const currentQuestionElem = document.getElementById("currentQuestion");
+    const answerInput = document.getElementById("answer");
+    const submitAnswerBtn = document.getElementById("submitAnswer");
+    const answerResponse = document.getElementById("answerResponse");
+    const getSummaryBtn = document.getElementById("getSummary");
+    const summaryResponse = document.getElementById("summaryResponse");
+
+    // Base URLs for API
+    const API_BASE = "http://localhost:5000/api/interview";
+    const AUTH_BASE = "http://localhost:5000/api/auth";
+
+    // Check if user is already logged in
+    async function checkAuthStatus() {
+      // First check if we have tokens in localStorage
+      const storedToken = localStorage.getItem("access_token");
+      if (storedToken) {
+        tokenInput.value = storedToken;
+        console.log("Found token in localStorage");
+      }
+
+      try {
+        const response = await fetch(`${AUTH_BASE}/me`, {
+          method: "GET",
+          headers: {
+            // Use the stored token if available
+            ...(storedToken && { Authorization: `Bearer ${storedToken}` }),
+          },
+          credentials: "include", // Important to include cookies
+        });
+        const data = await response.json();
+
+        if (data.user) {
+          authState.isLoggedIn = true;
+          authState.user = data.user;
+          authResponse.textContent = `Logged in as: ${data.user.email}`;
+        }
+      } catch (error) {
+        console.error("Auth status check failed:", error);
+      }
+    }
+
+    // Call this when page loads
+    checkAuthStatus();
+
+    // Login handler
+    loginBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email || !password) {
+        authResponse.textContent = "Email and password are required";
+        return;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_BASE}/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+          credentials: "include", // Important to store cookies
+        });
+
+        // Even before parsing JSON, check if the response contains cookies
+        console.log("Response headers:", response.headers);
+        console.log("Response status:", response.status);
+
+        const data = await response.json();
+        console.log("Login response data:", data);
+
+        if (!response.ok) {
+          throw new Error(data.error || "Login failed");
+        }
+
+        // Check if we have cookies after login
+        document.cookie.split(";").forEach((cookie) => {
+          console.log("Cookie:", cookie.trim());
+        });
+
+        authState.isLoggedIn = true;
+        authState.user = data.user;
+
+        // Store the tokens from the response
+        if (data.access_token) {
+          // Store token in input field
+          tokenInput.value = data.access_token;
+
+          // Store tokens in localStorage for persistence
+          localStorage.setItem("access_token", data.access_token);
+          if (data.refresh_token) {
+            localStorage.setItem("refresh_token", data.refresh_token);
+          }
+
+          authResponse.textContent = `Login successful! User ID: ${data.user.id} (Token available in field below)`;
+        } else {
+          authResponse.textContent = `Login successful! User ID: ${data.user.id}`;
+        }
+
+        // Clear password field
+        passwordInput.value = "";
+      } catch (error) {
+        console.error("Login error:", error);
+        authResponse.textContent = `Error: ${error.message}`;
+      }
+    });
+
+    // Signup handler
+    signupBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email || !password) {
+        authResponse.textContent = "Email and password are required";
+        return;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_BASE}/signup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Signup failed");
+        }
+
+        authResponse.textContent =
+          data.message ||
+          "Signup successful! Please check your email to verify your account.";
+
+        // Clear password field
+        passwordInput.value = "";
+      } catch (error) {
+        authResponse.textContent = `Error: ${error.message}`;
+      }
+    });
+
+    // Logout handler
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        const response = await fetch(`${AUTH_BASE}/logout`, {
+          method: "POST",
+          credentials: "include", // Important to include cookies
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Logout failed");
+        }
+
+        authState.isLoggedIn = false;
+        authState.user = null;
+        authResponse.textContent = "Logged out successfully";
+
+        // Clear stored tokens
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        tokenInput.value = "";
+
+        // Clear fields
+        emailInput.value = "";
+        passwordInput.value = "";
+      } catch (error) {
+        authResponse.textContent = `Error: ${error.message}`;
+      }
+    });
+
+    // Helper function to make authenticated API requests
+    async function apiRequest(endpoint, method, data = null) {
+      // If we have a token in the input field, use it directly
+      let authHeader = null;
+      const token = tokenInput.value.trim();
+
+      if (token) {
+        // Check if token already has Bearer prefix
+        if (token.toLowerCase().startsWith("bearer ")) {
+          authHeader = token;
+        } else {
+          authHeader = `Bearer ${token}`;
+        }
+      } else if (authState.isLoggedIn) {
+        // Try to get token from localStorage if available
+        const storedToken = localStorage.getItem("access_token");
+        if (storedToken) {
+          authHeader = `Bearer ${storedToken}`;
+          console.log("Using token from localStorage");
+        } else {
+          // Otherwise, rely on cookies set during login
+          console.log("Using cookie-based authentication");
+        }
+      } else {
+        alert("Please login or enter an auth token");
+        return null;
+      }
+
+      // Log cookies before making the request
+      console.log("Cookies before request:", document.cookie);
+      console.log("Using auth header:", authHeader ? "Yes" : "No");
+
+      const options = {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Include cookies for every request
+      };
+
+      if (authHeader) {
+        options.headers.Authorization = authHeader;
+      }
+
+      if (data) {
+        options.body = JSON.stringify(data);
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}${endpoint}`, options);
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.error || "API request failed");
+        }
+
+        return responseData;
+      } catch (error) {
+        console.error("API Error:", error);
+        return { error: error.message };
+      }
+    }
+
+    // Start interview
+    startBtn.addEventListener("click", async () => {
+      const track = trackSelect.value;
+      const numQuestions = parseInt(numQuestionsInput.value);
+
+      const data = {
+        track: track,
+        num_questions: numQuestions,
+      };
+
+      const response = await apiRequest("/start", "POST", data);
+      startResponse.textContent = JSON.stringify(response, null, 2);
+
+      if (response && !response.error) {
+        sessionState.sessionId = response.session_id;
+        sessionState.currentQuestion = response.question;
+        sessionState.history = response.history || [];
+        sessionState.isComplete = false;
+
+        currentQuestionElem.textContent = response.question;
+        answerInput.value = "";
+        answerResponse.textContent = "";
+      }
+    });
+
+    // Submit answer
+    submitAnswerBtn.addEventListener("click", async () => {
+      if (!sessionState.sessionId) {
+        alert("No active interview session. Please start an interview first.");
+        return;
+      }
+
+      if (sessionState.isComplete) {
+        alert("This interview is already complete.");
+        return;
+      }
+
+      const userAnswer = answerInput.value.trim();
+      if (!userAnswer) {
+        alert("Please enter an answer");
+        return;
+      }
+
+      const data = {
+        session_id: sessionState.sessionId,
+        answer: userAnswer,
+      };
+
+      const response = await apiRequest("/answer", "POST", data);
+      answerResponse.textContent = JSON.stringify(response, null, 2);
+
+      if (response && !response.error) {
+        // Update evaluation and next question
+        const evaluation = response.evaluation;
+        sessionState.history = response.history || sessionState.history;
+        sessionState.isComplete = response.done;
+
+        if (response.done) {
+          currentQuestionElem.textContent =
+            "Interview complete! You can now view the summary.";
+        } else {
+          sessionState.currentQuestion = response.next_question;
+          currentQuestionElem.textContent = response.next_question;
+          answerInput.value = "";
+        }
+      }
+    });
+
+    // Get interview summary
+    getSummaryBtn.addEventListener("click", async () => {
+      if (!sessionState.sessionId) {
+        alert("No interview session found. Please start an interview first.");
+        return;
+      }
+
+      const response = await apiRequest(
+        `/summary?session_id=${sessionState.sessionId}`,
+        "GET"
+      );
+      summaryResponse.textContent = JSON.stringify(response, null, 2);
+    });
+
+    // Check cookie status
+    document.getElementById("checkCookiesBtn").addEventListener("click", () => {
+      const cookies = document.cookie;
+
+      if (!cookies) {
+        authResponse.textContent =
+          "No cookies are set in this browser session.";
+        return;
+      }
+
+      // Display all cookies (Note: httpOnly cookies won't be visible here)
+      const cookieList = cookies.split(";").map((cookie) => cookie.trim());
+      const cookieReport =
+        cookieList.length > 0
+          ? `Found ${cookieList.length} cookies:\n${cookieList.join("\n")}`
+          : "No cookies found";
+
+      // Check for auth-related cookies
+      const hasAccessToken = cookieList.some((c) =>
+        c.startsWith("sb-access-token=")
+      );
+      const hasRefreshToken = cookieList.some((c) =>
+        c.startsWith("sb-refresh-token=")
+      );
+
+      const authStatus = [
+        hasAccessToken
+          ? "✅ Access token cookie is set"
+          : "❌ Access token cookie is missing",
+        hasRefreshToken
+          ? "✅ Refresh token cookie is set"
+          : "❌ Refresh token cookie is missing",
+      ].join("\n");
+
+      // Test server connectivity to see if cookies are being sent
+      fetch(`${AUTH_BASE}/me`, {
+        credentials: "include",
+        headers: {
+          "X-Cookie-Debug": "true", // Custom header to ask backend to log cookies
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const serverStatus = data.user
+            ? `✅ Server recognized you as: ${data.user.email}`
+            : "❌ Server does not recognize you";
+
+          authResponse.textContent = `${cookieReport}\n\n${authStatus}\n\n${serverStatus}`;
+        })
+        .catch((error) => {
+          authResponse.textContent = `${cookieReport}\n\n${authStatus}\n\n❌ Failed to check with server: ${error.message}`;
+        });
+    });
+  </script>
+</html>

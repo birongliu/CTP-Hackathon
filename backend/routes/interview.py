@@ -24,7 +24,7 @@ def start():
     session_id = create_session(user_id, track, num_questions)
 
     # 2) get first question from graph
-    q1, history = first_question_logic()
+    q1, history = first_question_logic(mode=track)
 
     # 3) save Q1 as turn_index=1
     insert_question(session_id, 1, q1)

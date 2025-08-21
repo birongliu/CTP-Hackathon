@@ -2,8 +2,8 @@ import json
 from typing import List, Tuple, Dict, Any
 from agents import generate_first_question, judge_step
 
-def first_question_logic() -> Tuple[str, List[str]]:
-    out = generate_first_question()
+def first_question_logic(mode) -> Tuple[str, List[str]]:
+    out = generate_first_question(mode)
     return out["question"], out["history"]
 
 def evaluate_and_next_logic(question: str, answer: str, history: List[str]) -> Dict[str, Any]:

@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Dict, Any, Union, Literal
 from openai import OpenAI
-from prompts import get_interviewee_prompt, get_interviewer_system_prompt, get_judge_user_and_interviewer_prompt, get_interview_couch_user_prompt
+from .prompts import get_interviewee_prompt, get_interviewer_system_prompt, get_judge_user_and_interviewer_prompt, get_interview_couch_user_prompt
 import os
 
 # ---- Client (Ollama OpenAI-compatible) ----
@@ -33,11 +33,13 @@ class InterviewState(TypedDict):
 
 # ---- NODES ----
 def interviewer_node(state: InterviewState) -> InterviewState:
-    """Advance the interview by generating the next question and capturing the answer.
-
-    This node increments the interview round, asks the model to produce a new
-    interview question (avoiding repetition and adding a topic hint), collects the
-    candidate’s answer interactively from stdin, and updates the session state.
+    """Generate the next interview question without waiting for a response.
+    
+    This node increments the interview round and asks the model to produce a new
+    interview question (avoiding repetition and adding a topic hint). This function
+    is designed to work with a web frontend - it doesn't collect the candidate's 
+    answer directly but returns a state with the question that the frontend can 
+    display to the user.
 
     Args:
         state: A mapping representing the current interview state. Expected keys:
@@ -45,35 +47,39 @@ def interviewer_node(state: InterviewState) -> InterviewState:
             - "history": list of str, alternating Q/A lines from prior rounds.
             - "questions": list of str, previously asked questions.
             - "round": int, current round number (0-based before increment).
+            - "candidate_answer": str, the user's previous answer (if any).
 
     Returns:
         InterviewState: A new state dictionary with updated fields:
-            - "history": appended with the new Q and A.
+            - "history": appended with the new Q (the answer will be added later).
             - "questions": includes the new question.
             - "round": incremented round number.
             - "question": the text of the new question.
-            - "candidate_answer": the candidate’s typed response.
             - "ai_feedback": lightweight acknowledgement string.
 
     Side Effects:
-        - Prints the generated question to stdout.
-        - Prompts the user for input via stdin.
         - Calls the chat completion API to generate a question.
-
+        - Only updates the history with the question (answer will be added later).
+        
     Example:
         >>> state = {"mode": "technical", "history": [], "questions": [], "round": 0}
         >>> new_state = interviewer_node(state)
-        🤖 Interviewer: Explain the difference between a list and a tuple in Python.
-        👤 Your Answer: (typed interactively)
-        >>> isinstance(new_state["round"], int)
-        True
+        >>> print(new_state["question"])
+        Explain the difference between a list and a tuple in Python.
     """
 
     mode = state.get("mode", "")
     history = state.get("history", [])
     qs = state.get("questions", [])
     round_num = state.get("round", 0) + 1  # increment
-
+    
+    # If there's a candidate answer from previous round, provide feedback
+    candidate_answer = state.get("candidate_answer", "")
+    ai_feedback = ""
+    
+    if candidate_answer:
+        ai_feedback = f"Thanks — noted. (mode: {mode}, round {round_num-1})"
+    
     # Generate next question with anti-repeat + topic hint
     resp = client.chat.completions.create(
         model=INTERVIEW_MODEL,
@@ -87,14 +93,9 @@ def interviewer_node(state: InterviewState) -> InterviewState:
     )
     question = (resp.choices[0].message.content or "").strip()
 
-    print(f"\n🤖 Interviewer: {question}")
-    candidate_answer = input("👤 Your Answer: ").strip()
-
-    ai_feedback = f"Thanks — noted. (mode: {mode}, round {round_num})"
-
-    # Update history
+    # Update history with just the question
+    # (answer will be added when the user responds via the frontend)
     history.append(f"Q: {question}")
-    history.append(f"A: {candidate_answer}")
     qs.append(question)
 
     return {
@@ -103,7 +104,37 @@ def interviewer_node(state: InterviewState) -> InterviewState:
         "questions": qs,
         "round": round_num,
         "question": question,
-        "candidate_answer": candidate_answer,
+        "ai_feedback": ai_feedback
+    }
+
+def process_candidate_answer(state: InterviewState, answer: str) -> InterviewState:
+    """Process the candidate's answer received from the frontend.
+    
+    This function updates the interview state with the candidate's answer
+    received from the frontend UI.
+    
+    Args:
+        state: The current interview state.
+        answer: The candidate's answer string received from the frontend.
+        
+    Returns:
+        InterviewState: Updated state with the candidate's answer.
+    """
+    # Make a copy of the current history
+    history = state.get("history", []).copy()
+    
+    # Add the answer to the history
+    history.append(f"A: {answer}")
+    
+    # Generate appropriate feedback
+    mode = state.get("mode", "")
+    round_num = state.get("round", 1)
+    ai_feedback = f"Thanks — noted. (mode: {mode}, round {round_num})"
+    
+    return {
+        **state,
+        "history": history,
+        "candidate_answer": answer,
         "ai_feedback": ai_feedback
     }
 

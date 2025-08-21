@@ -47,10 +47,15 @@ def login_route():
         return jsonify({"error":"invalid credentials"}), 401
     access = res.session.access_token
     refresh = res.session.refresh_token
-    resp = make_response({"ok": True, "user": {"id": res.user.id, "email": res.user.email}})
+    resp = make_response({
+        "ok": True, 
+        "user": {"id": res.user.id, "email": res.user.email},
+        "access_token": access,  # Include token in response body
+        "refresh_token": refresh  # Include refresh token in response body
+    })
     # In prod: secure=True, samesite="None"
-    resp.set_cookie("sb-access-token", access, httponly=True, secure=False, samesite="Lax", path="/")
-    resp.set_cookie("sb-refresh-token", refresh, httponly=True, secure=False, samesite="Lax", path="/")
+    resp.set_cookie("sb-access-token", access, httponly=True, secure=False, samesite="None", path="/")
+    resp.set_cookie("sb-refresh-token", refresh, httponly=True, secure=False, samesite="None", path="/")
     return resp
 
 @auth_bp.post("/logout")
