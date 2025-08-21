@@ -27,7 +27,7 @@ def generate_first_question(mode="technical") -> Dict[str, Any]:
         "questions": [],
         "round": 0,
         "question": "",
-        "candidate_answer": "This is a placeholder answer for initialization.",
+        "candidate_answer": "",  # No answer yet for the first question
         "ai_feedback": "",
         "judge_score": 0.0,
         "judge_feedback": "",
@@ -44,9 +44,9 @@ def generate_first_question(mode="technical") -> Dict[str, Any]:
     # Update our state for subsequent operations
     _state = {
         "mode": mode,
-        "history": [f"Q: {question}"],
-        "questions": [question],
-        "round": 1,
+        "history": result["history"],  # This now contains only the question
+        "questions": result["questions"],
+        "round": result["round"],
         "question": question,
         "candidate_answer": "",
         "ai_feedback": "",
@@ -86,13 +86,20 @@ def judge_step(question: str, answer: str, history: List[str]) -> Dict[str, Any]
             "all_judge_lines": []
         }
     
-    # Update state with current Q&A
-    _state["question"] = question
-    _state["candidate_answer"] = answer
-    _state["ai_feedback"] = f"Thanks — noted. (mode: {_state['mode']}, round {_state['round']})"
+    # Import here to avoid circular imports
+    from agents.agents import process_candidate_answer
     
-    # Prepare state for graph invocation
-    graph_state = cast(InterviewState, {
+    # First, process the candidate's answer
+    graph_state = cast(InterviewState, _state)
+    updated_state = process_candidate_answer(graph_state, answer)
+    
+    # Update our global state with the processed answer
+    _state["history"] = updated_state["history"]
+    _state["candidate_answer"] = answer
+    _state["ai_feedback"] = updated_state["ai_feedback"]
+    
+    # Prepare state for judge invocation
+    judge_state = cast(InterviewState, {
         "mode": _state["mode"],
         "history": _state["history"].copy(),
         "questions": _state["questions"].copy(),
@@ -105,9 +112,9 @@ def judge_step(question: str, answer: str, history: List[str]) -> Dict[str, Any]
         "all_judge_lines": _state.get("all_judge_lines", []).copy()
     })
     
-    # Invoke the graph to run the judge node and generate the next question
+    # Invoke the graph to run the judge node
     graph = _get_graph()
-    result = graph.invoke(graph_state)
+    result = graph.invoke(judge_state)
     
     # Extract results from the graph execution
     judge_eval = result["judge_feedback"]
@@ -133,22 +140,19 @@ def judge_step(question: str, answer: str, history: List[str]) -> Dict[str, Any]
         "all_judge_lines": _state["all_judge_lines"].copy()
     })
     
+    # Generate the next question using the interviewer node
     next_result = graph.invoke(interviewer_state)
     next_question = next_result["question"]
     
-    # Update history
-    history = history.copy()
-    history.append(f"A: {answer}")
-    history.append(f"Q: {next_question}")
+    # Update global state with the next question and history
+    _state["history"] = next_result["history"]
+    _state["questions"] = next_result["questions"]
     
-    # Update state
-    _state["history"] = history
-    _state["questions"].append(next_question)
-    
+    # Prepare response with the evaluation and next question
     return {
         "evaluation_raw_json": judge_eval,
         "next_question": next_question,
-        "history": history
+        "history": _state["history"]
     }
 
 def generate_coaching_summary(mode: str, history: List[str]) -> str:

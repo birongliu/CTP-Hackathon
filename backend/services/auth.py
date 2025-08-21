@@ -14,8 +14,7 @@ class AuthError(Exception):
         super().__init__(self.message)
 
 
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
-
+supabase = sb()
 def signup(email: str, password: str):
     return supabase.auth.sign_up({"email": email, "password": password})
 
@@ -27,6 +26,7 @@ def logout(token: str):
 
 
 def get_user_id_from_auth(auth_header: Optional[str]) -> Tuple[bool, str]:
+    print("get user id from auth", auth_header)
     """
     Extract and validate the user ID from the Authorization header.
     
