@@ -7,6 +7,8 @@ _sb: Optional[Client] = None
 def sb() -> Client:
     global _sb
     if _sb is None:
+        if SUPABASE_URL is None or SUPABASE_SERVICE_KEY is None:
+            raise ValueError("SUPABASE_URL or SUPABASE_SERVICE_KEY not found")
         _sb = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
     return _sb
 
@@ -31,11 +33,12 @@ def insert_question(session_id: str, turn_index: int, question: str) -> str:
     }).execute()
     return res.data[0]["id"]
 
-def get_latest_qa(session_id: str) -> Dict[str, Any]:
+def get_latest_qa(session_id: str) -> Optional[Dict[str, Any]]:
     res = (sb().table("qa_pairs")
            .select("*").eq("session_id", session_id)
            .order("turn_index", desc=True).limit(1)
            .execute())
+    
     return res.data[0] if res.data else None
 
 def get_all_qas(session_id: str) -> List[Dict[str, Any]]:
