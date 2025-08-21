@@ -1,30 +1,3 @@
-<<<<<<< HEAD
-import { useEffect, useState } from 'react'
-import '../styles/App.css'
-import type { Session } from '@supabase/supabase-js'
-import { supabase } from '../supabaseClient'
-import Navbar from '../components/Navbar'
-import { useLocation } from 'react-router-dom'
-import HomePage from './HomePage'
-import SignUpForm from '../components/SignUpForm'
-import SignInForm from '../components/SignInForm'
-
-function App () {
-  const [session, setSession] = useState<Session | null>(null)
-  const location = useLocation()
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe()
-  }, [])
-=======
 import { useEffect, useState } from 'react';
 import '../styles/App.css';
 import Navbar from '../components/Navbar';
@@ -62,19 +35,10 @@ function App() {
   useEffect(() => {
     if (location.pathname === '/') loadMe();
   }, [location.pathname]);
->>>>>>> EdisonCode
 
   const renderPage = () => {
     switch (location.pathname) {
       case '/signin':
-<<<<<<< HEAD
-        return <SignInForm />
-      case '/signup':
-        return <SignUpForm />
-      case '/':
-      default:
-        return <HomePage session={session} />
-=======
         return <SignInForm />; // these forms POST to /api/auth/login|signup
       case '/signup':
         return <SignUpForm />;
@@ -82,7 +46,6 @@ function App() {
       default:
         // HomePage no longer needs Session; just pass email (or nothing)
         return <HomePage />; // or make HomePage read /api/auth/me itself
->>>>>>> EdisonCode
     }
   };
 
@@ -90,15 +53,6 @@ function App() {
     <div>
       <Navbar />
       <main>
-<<<<<<< HEAD
-        {renderPage()}
-      </main>
-    </div>
-  )
-}
-
-export default App
-=======
         {loading ? (
           <div style={{ padding: '1rem' }}>Loading…</div>
         ) : (
@@ -110,4 +64,3 @@ export default App
 }
 
 export default App;
->>>>>>> EdisonCode
