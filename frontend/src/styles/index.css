@@ -66,3 +66,10 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+nav {
+  display: 'flex';
+  gap: '1rem';
+  padding: '1rem'; 
+  border-bottom: '1px solid #ccc';
+}
