@@ -65,8 +65,13 @@ def me_route():
     token = request.cookies.get("sb-access-token")
     if not token:
         return jsonify({"user": None})
+
     try:
-        claims = verify_jwt(token)
-        return jsonify({"user": {"id": claims["sub"], "email": claims.get("email")}})
-    except Exception:
+        # Let Supabase validate the token and return the user
+        res = supabase.auth.get_user(token)
+        if res.user is None:
+            return jsonify({"user": None})
+        return jsonify({"user": {"id": res.user.id, "email": res.user.email}})
+    except Exception as e:
+        # print(e)  # optionally log
         return jsonify({"user": None})
