@@ -3,6 +3,12 @@ import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../supabaseClient"
 import Navbar from "./Navbar"
 
+import "../styles/SignInForm.css"
+import logo from "../assets/logo.png"
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+
+
 function SignInForm () {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -25,10 +31,10 @@ function SignInForm () {
   };
 
   return (
-    <div>
-        <Navbar />
-      <h2>Sign In</h2>
-      <p>Sign in to your account.</p>
+    <>
+    {/* <div>
+      <Navbar />
+      <h2>Welcome to TechNova!</h2>
       {message && <p style={{ color: 'red' }}>{message}</p>}
       <form onSubmit={handleSignIn}>
         <div>
@@ -46,7 +52,43 @@ function SignInForm () {
       <p>
         Don't have an account? <Link to="/signup">Sign Up</Link>
       </p>
-    </div>
+    </div> */}
+
+    <img src={logo} id="logo" />
+    <h2>Welcome to TechNova!</h2>
+    
+    <Form onSubmit={handleSignIn}>
+      <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Label htmlFor="email" className="form-text">Email</Form.Label>
+        <Form.Control 
+          id="email" 
+          type="email" 
+          placeholder="Enter email"  
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="formBasicPassword">
+        <Form.Label htmlFor="password" className="form-text">Password</Form.Label>
+        <Form.Control 
+          id="password" 
+          type="password" 
+          placeholder="Password"
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          required
+        />
+      </Form.Group>
+      <Button className="submit-btn" type="submit" disabled={loading} > {loading ? 'Logging In...' : 'Login'} </Button>
+    </Form>
+    <p>
+        Don't have an account? <Link to="/signup">Sign-up</Link>
+    </p>
+
+    {message && <p style={{ color: 'red' }}>{message}</p>} {/* Error Message */}
+    </>  
   )
 }
 
