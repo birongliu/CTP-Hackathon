@@ -1,52 +1,92 @@
-import { useState } from "react"
-import { supabase } from "../supabaseClient"
-import { Link } from "react-router-dom"
-import Navbar from "./Navbar"
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
-function SignUpForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+import "../styles/SignInOutForm.css"
+import logo from "../assets/logo.png"
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
-  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setLoading(true)
-    setMessage('')
-    const { error } = await supabase.auth.signUp({ email: email, password: password, })
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-    if (error) {
-      setMessage(`Error: ${error.message}`)
-    } else {
-      setMessage('Sign up successful! Please check your email to verify your account.')
-    }
-    setLoading(false)
-  }
+export default function SignUpForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage("Signing up...");
+
+    const res = await fetch(`${API_BASE}/api/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    setMessage(
+      res.ok
+        ? data.message || "Sign up successful! Check your email."
+        : `Error: ${data.error || "Sign up failed"}`
+    );
+  };
 
   return (
-    <div>
-        <Navbar />
+    <>
+    {/* <form onSubmit={handleSignUp}>
       <h2>Sign Up</h2>
-      <p>Create a new account.</p>
-      {message && <p style={{ color: message.startsWith('Error') ? 'red' : 'green' }}>{message}</p>}
-      <form onSubmit={handleSignUp}>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Signing Up...' : 'Sign Up'}
-        </button>
-      </form>
-      <p>
-        Already have an account? <Link to="/signin">Sign In</Link>
-      </p>
-    </div>
-  )
-}
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button type="submit">Sign Up</button>
+      <p>{message}</p>
+    </form> */}
 
-export default SignUpForm
+    <img src={logo} id="logo" />
+    <h2>Welcome to TechNova!</h2>
+    Register for an account here
+    
+    <Form onSubmit={handleSignUp}>
+      <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Label className="form-text">Email</Form.Label>
+        <Form.Control 
+          type="email" 
+          placeholder="Enter email"  
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="formBasicPassword">
+        <Form.Label className="form-text">Password</Form.Label>
+        <Form.Control 
+          type="password" 
+          placeholder="Password"
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          required
+        />
+      </Form.Group>
+      <Button className="submit-btn" type="submit" > Sign-up </Button>
+    </Form>
+    <p className="question-link">
+        Have an account? <Link to="/signin">Sign-in</Link>
+    </p>
+    <p>{message}</p>
+
+    </>
+  );
+}

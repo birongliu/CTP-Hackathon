@@ -1,6 +1,6 @@
 import json
 from typing import List, Tuple, Dict, Any
-from graph.graph import generate_first_question, judge_step
+from agents import generate_first_question, judge_step
 
 def first_question_logic() -> Tuple[str, List[str]]:
     out = generate_first_question()
