@@ -3,3 +3,4 @@ langgraph
 flask
 python-dotenv
 flask_cors
+supabase
