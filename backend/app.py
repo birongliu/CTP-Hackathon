@@ -1,10 +1,12 @@
 from flask import Flask
 from flask_cors import CORS
-from routes.interview import bp as interview_bp
+from routes.auth_routes import auth_bp
 
 app = Flask(__name__)
-CORS(app)
-app.register_blueprint(interview_bp, url_prefix="/api")
+CORS(app, supports_credentials=True,
+     resources={r"/api/*": {"origins": "http://localhost:5173"}})
+
+app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
 if __name__ == "__main__":
-    app.run(port=8000, debug=True)
+    app.run(port=5000, debug=True)

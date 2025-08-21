@@ -4,12 +4,27 @@ import time
 import uuid
 from typing import Optional, Tuple, Dict, Any
 from db.supabase_db import sb
+from supabase import create_client
+import os
 
 class AuthError(Exception):
     """Custom exception for authentication errors"""
     def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
+
+
+supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+
+def signup(email: str, password: str):
+    return supabase.auth.sign_up({"email": email, "password": password})
+
+def login(email: str, password: str):
+    return supabase.auth.sign_in_with_password({"email": email, "password": password})
+
+def logout(token: str):
+    return supabase.auth.sign_out(token)
+
 
 def get_user_id_from_auth(auth_header: Optional[str]) -> Tuple[bool, str]:
     """
