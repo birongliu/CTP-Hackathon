@@ -17,7 +17,7 @@ function App() {
   async function loadMe() {
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const res = await fetch('http://localhost:5000/api/auth/me', { credentials: 'include' });
       const data: MeResponse = await res.json();
       setUserEmail(data.user?.email ?? null);
     } catch {

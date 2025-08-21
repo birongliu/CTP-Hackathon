@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import "../styles/SignInForm.css"
+import logo from "../assets/logo.png"
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
@@ -34,7 +39,8 @@ export default function SignInForm() {
   };
 
   return (
-    <form onSubmit={handleSignIn}>
+    <>
+    {/* <form onSubmit={handleSignIn}>
       <h2>Sign In</h2>
       <input
         type="email"
@@ -52,6 +58,40 @@ export default function SignInForm() {
       />
       <button type="submit">Sign In</button>
       <p>{message}</p>
-    </form>
+    </form> */}
+
+    <img src={logo} id="logo" />
+    <h2>Welcome to TechNova!</h2>
+    
+    <Form onSubmit={handleSignIn}>
+      <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Label htmlFor="email" className="form-text">Email</Form.Label>
+        <Form.Control 
+          type="email" 
+          placeholder="Enter email"  
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3" controlId="formBasicPassword">
+        <Form.Label htmlFor="password" className="form-text">Password</Form.Label>
+        <Form.Control 
+          type="password" 
+          placeholder="Password"
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          required
+        />
+      </Form.Group>
+      <Button className="submit-btn" type="submit" > Login </Button>~
+    </Form>
+    <p>
+        Don't have an account? <Link to="/signup">Sign-up</Link>
+    </p>
+
+    <p>{message}</p>
+    </>
   );
 }
