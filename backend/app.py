@@ -1,16 +1,12 @@
-import os
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_cors import CORS
-
-from dotenv import load_dotenv
-load_dotenv()
+from routes.auth_routes import auth_bp
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True,
+     resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
-@app.route('/')
-def home():
-    return "Backend server is running!"
+app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(port=5000, debug=True)

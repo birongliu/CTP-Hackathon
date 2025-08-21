@@ -1,2 +1,7 @@
 openai
 langgraph
+flask
+python-dotenv
+flask_cors
+supabase
+python-jose[cryptography]
