@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, abort
 from config import DEFAULT_NUM_QUESTIONS
 from services.auth import get_user_id_from_auth
 from services.interview_logic import first_question_logic, evaluate_and_next_logic
@@ -11,7 +11,11 @@ bp = Blueprint("interview", __name__)
 
 @bp.post("/start")
 def start():
-    user_id = get_user_id_from_auth(request.headers.get("Authorization"))
+    success, result = get_user_id_from_auth(request.headers.get("Authorization"))
+    if not success:
+        abort(401, description=result)
+    user_id = result
+    
     body = request.get_json(force=True) or {}
     track = body.get("track", "behavioral")
     num_questions = int(body.get("num_questions", DEFAULT_NUM_QUESTIONS))
@@ -30,7 +34,11 @@ def start():
 
 @bp.post("/answer")
 def answer():
-    _user_id = get_user_id_from_auth(request.headers.get("Authorization"))
+    success, result = get_user_id_from_auth(request.headers.get("Authorization"))
+    if not success:
+        abort(401, description=result)
+    user_id = result
+    
     b = request.get_json(force=True)
     session_id = b["session_id"]
     user_answer = b["answer"]
@@ -84,7 +92,14 @@ def answer():
 
 @bp.get("/summary")
 def summary():
+    success, result = get_user_id_from_auth(request.headers.get("Authorization"))
+    if not success:
+        abort(401, description=result)
+    
     session_id = request.args.get("session_id")
+    if not session_id:
+        return jsonify({"error": "Invalid session id"}), 400
+    
     qas = get_all_qas(session_id)
     questions = [q["question"] for q in qas]
     answers = [q.get("answer", "") for q in qas]
