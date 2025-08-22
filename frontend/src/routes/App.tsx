@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import HomePage from './HomePage';
 import SignUpForm from '../components/SignUpForm';
 import SignInForm from '../components/SignInForm';
+import Behavioral from '../routes/Behavioral';
 
 type MeResponse = { user: { id: string; email?: string } | null };
 
@@ -38,6 +39,8 @@ function App() {
 
   const renderPage = () => {
     switch (location.pathname) {
+      case '/behavioral':
+        return <Behavioral />
       case '/signin':
         return <SignInForm />; // these forms POST to /api/auth/login|signup
       case '/signup':

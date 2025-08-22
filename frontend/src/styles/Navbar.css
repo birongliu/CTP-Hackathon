@@ -1,0 +1,22 @@
+.logo {
+    max-width: 30px;
+    max-height: 30px;
+    margin-right: 10px;
+}
+
+.bg-body-tertiary {
+    margin-left: 20px !important;
+}
+
+#dropdown-profile-btn {
+    margin-right: 20px;
+    transition: transform 0.3s ease;
+}
+
+#dropdown-profile-btn:hover {
+    transform: scale(1.1);
+}
+
+#dropdown-profile-btn::after {
+    display: none;
+}
