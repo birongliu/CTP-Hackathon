@@ -3,15 +3,23 @@ from typing import TypedDict, List, Dict, Any, Union, Literal
 from openai import OpenAI
 from .prompts import get_interviewee_prompt, get_interviewer_system_prompt, get_judge_user_and_interviewer_prompt, get_interview_couch_user_prompt
 import os
+from groq import Groq
+import config
 
 # ---- Client (Ollama OpenAI-compatible) ----
 INTERVIEW_MODEL = os.getenv("INTERVIEW_MODEL", "qwen2.5:7b-instruct")
 JUDGE_MODEL     = os.getenv("JUDGE_MODEL", "qwen2.5:7b-instruct")
 COACH_MODEL     = os.getenv("COACH_MODEL", JUDGE_MODEL)  # reuse judge by default
 
+# For local Ollama models
 client = OpenAI(
     base_url=os.getenv("OLLAMA_HOST", "http://localhost:11434/v1"),
     api_key=os.getenv("OLLAMA_KEY", "ola")
+)
+
+# For GROQ services like Whisper fast infererence
+groq_client = Groq(
+    api_key=config.GROQ_KEY
 )
 
 # ---- STATE ----
