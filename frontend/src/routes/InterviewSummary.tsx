@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { supabase } from "../supabaseClient";
 import "../styles/InterviewRoom.css"; // Reuse base styles
 import "../styles/InterviewSummary.css"; // Summary specific styles
 
@@ -40,14 +41,26 @@ export default function InterviewSummary() {
       }
 
       try {
+        // Get authentication session
+        const session = await supabase.auth.getSession();
+
+        // Prepare auth header
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+
+        if (session.data.session) {
+          headers[
+            "Authorization"
+          ] = `Bearer ${session.data.session.access_token}`;
+        }
+
         // Fetch the interview summary data from API
         const response = await fetch(
-          `${API_BASE_URL}/summary?session_id=${sessionId}`,
+          `${API_BASE_URL}/api/interview/summary?session_id=${sessionId}`,
           {
             method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers,
             credentials: "include",
           }
         );
@@ -63,61 +76,46 @@ export default function InterviewSummary() {
 
         // Process and format the data
         const formattedData: InterviewData = {
-          sessionId: sessionId,
-          type: data.type || "Unknown",
+          sessionId: sessionId || "",
+          type: "Interview", // Default type since it's not in the response
           questions: [],
-          overallScore: data.overall_score,
-          overallFeedback: data.overall_feedback,
-          date: new Date(data.timestamp || Date.now()).toLocaleString(),
+          date: new Date().toLocaleString(), // Current date since timestamp is not provided
         };
 
-        // Extract questions and answers from history
-        if (data.history && Array.isArray(data.history)) {
-          let currentQuestion = "";
-          let currentAnswer = "";
-
-          data.history.forEach((entry: string) => {
-            if (entry.startsWith("Q:")) {
-              // If we already have a question-answer pair, save it
-              if (currentQuestion) {
-                formattedData.questions.push({
-                  question: currentQuestion,
-                  answer: currentAnswer || "No answer recorded",
-                });
-                currentAnswer = "";
-              }
-              currentQuestion = entry.replace("Q:", "").trim();
-            } else if (entry.startsWith("A:")) {
-              currentAnswer = entry.replace("A:", "").trim();
-            }
-          });
-
-          // Add the last question-answer pair
-          if (currentQuestion) {
+        // Extract questions and answers directly from the response
+        if (
+          data.questions &&
+          Array.isArray(data.questions) &&
+          data.answers &&
+          Array.isArray(data.answers)
+        ) {
+          // Map questions and answers to the expected format
+          data.questions.forEach((question: string, index: number) => {
             formattedData.questions.push({
-              question: currentQuestion,
-              answer: currentAnswer || "No answer recorded",
+              question,
+              answer: data.answers[index] || "No answer recorded",
             });
-          }
+          });
         }
 
         // Add feedback to questions if available
         if (data.evaluations && Array.isArray(data.evaluations)) {
           data.evaluations.forEach(
             (
-              evaluation: { feedback?: string; score?: number } | string,
+              evaluation: { feedback?: string; score?: number },
               index: number
             ) => {
-              if (formattedData.questions[index]) {
-                if (typeof evaluation === "object" && evaluation !== null) {
-                  formattedData.questions[index].feedback = evaluation.feedback;
-                  formattedData.questions[index].score = evaluation.score;
-                } else if (typeof evaluation === "string") {
-                  formattedData.questions[index].feedback = evaluation;
-                }
+              if (formattedData.questions[index] && evaluation) {
+                formattedData.questions[index].feedback = evaluation.feedback;
+                formattedData.questions[index].score = evaluation.score;
               }
             }
           );
+        }
+
+        // Add the coach tip if available
+        if (data.coach_tip) {
+          formattedData.overallFeedback = data.coach_tip;
         }
 
         setInterviewData(formattedData);
@@ -202,18 +200,12 @@ export default function InterviewSummary() {
           <div className="interview-date">{interviewData.date}</div>
         </div>
 
-        {interviewData.overallScore !== undefined && (
+        {interviewData.overallFeedback && (
           <div className="summary-overall-box">
-            <h3>Overall Performance</h3>
-            <div className="summary-score">
-              Score: {interviewData.overallScore}/10
+            <h3>Coach Tip</h3>
+            <div className="summary-feedback">
+              <p>{interviewData.overallFeedback}</p>
             </div>
-            {interviewData.overallFeedback && (
-              <div className="summary-feedback">
-                <h4>Overall Feedback:</h4>
-                <p>{interviewData.overallFeedback}</p>
-              </div>
-            )}
           </div>
         )}
 
@@ -235,7 +227,7 @@ export default function InterviewSummary() {
                   <h4>Feedback:</h4>
                   {qa.score !== undefined && (
                     <div className="summary-question-score">
-                      Score: {qa.score}/10
+                      Score: {qa.score}/5
                     </div>
                   )}
                   <p>{qa.feedback}</p>
