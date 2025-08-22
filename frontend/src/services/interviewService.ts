@@ -157,6 +157,32 @@ export const getInterviewSummary = async (sessionId: string) => {
   }
 };
 
+// Get user's past interviews
+export const getUserInterviews = async () => {
+  try {
+    const headers = await getAuthHeader();
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/interview/user-interviews`,
+      {
+        method: "GET",
+        headers: {
+          ...headers,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to get user interviews");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error getting user interviews:", error);
+    throw error;
+  }
+};
+
 // For technical interviews, retrieve audio recordings
 export const getTechnicalAudio = async (
   sessionId: string,

@@ -9,6 +9,7 @@ import TechnicalPage from "./routes/TechnicalPage.tsx";
 import InterviewRoom from "./routes/InterviewRoom.tsx";
 import InterviewSummary from "./routes/InterviewSummary.tsx";
 import Behavioral from "./routes/Behavioral.tsx";
+import Interviews from "./routes/Interviews.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
   { path: "/interview", element: <InterviewRoom /> },
   { path: "/interview/:sessionId", element: <InterviewRoom /> },
   { path: "/summary/:sessionId", element: <InterviewSummary /> },
+  { path: "/interviews", element: <Interviews /> },
 ]);
 
 createRoot(document.getElementById("root")!).render(
