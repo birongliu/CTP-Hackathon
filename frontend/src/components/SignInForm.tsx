@@ -5,6 +5,7 @@ import "../styles/SignInOutForm.css"
 import logo from "../assets/logo.png"
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import { supabase } from "../supabaseClient";
 import Navbar from '../components/Navbar';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
@@ -26,10 +27,24 @@ export default function SignInForm() {
       body: JSON.stringify({ email, password }),
     });
 
-    let data: any = {};
+    interface LoginResponse {
+      error?: string;
+      [key: string]: unknown;
+    }
+
+    let data: LoginResponse = {};
+    
     try {
       data = await res.json();
-    } catch {}
+      if(data) {
+        supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+      }
+    } catch {
+      // Ignore JSON parse errors
+    }
 
     if (!res.ok) {
       setMessage(`Error: ${data?.error ?? res.statusText}`);

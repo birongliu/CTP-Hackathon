@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import "../styles/InterviewRoom.css";
+import {
+  startInterview,
+  submitAudioAnswer,
+} from "../services/interviewService";
 
 import Navbar from '../components/Navbar'
 
@@ -12,13 +16,6 @@ export default function InterviewRoom() {
   const type =
     (queryParams.get("type") as "behavioral" | "technical") || "behavioral";
 
-  // Handle ending the interview
-  const handleEndInterview = () => {
-    // Here you would typically send a request to your backend to end the interview session
-    // For now, we'll just navigate back to the homepage
-    navigate("/");
-  };
-
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [hasRecorded, setHasRecorded] = useState<boolean>(false);
@@ -26,7 +23,28 @@ export default function InterviewRoom() {
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [totalQuestions] = useState<number>(3); // Set how many questions for the interview
   const [isLastQuestion, setIsLastQuestion] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedbackReviewed, setFeedbackReviewed] = useState<boolean>(false);
+  const [interviewSessionId, setInterviewSessionId] = useState<string | null>(
+    sessionId || null
+  );
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null
+  );
+  
+  // Handle ending the interview
+  const handleEndInterview = () => {
+    // Navigate to summary page
+    navigate(`/summary/${sessionId}`);
+  };
+
+  // Use a ref to keep track of audio chunks to avoid closure issues
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<number | null>(null);
+
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Sample behavioral interview questions wrapped in useMemo to avoid dependency array issues
   const behavioralQuestions = useMemo(
@@ -52,85 +70,295 @@ export default function InterviewRoom() {
     []
   );
 
-  // Setup webcam feed when component mounts
+  // Start the interview session or get the first question
   useEffect(() => {
-    let videoStream: MediaStream | null = null;
+    let isMounted = true;
 
-    async function setupWebcam() {
+    async function initializeInterview() {
+      if (!interviewSessionId) {
+        try {
+          setIsLoading(true);
+          const response = await startInterview(type, totalQuestions);
+          if (isMounted) {
+            setInterviewSessionId(response.session_id);
+            setCurrentQuestion(response.question);
+            setQuestionIndex(0);
+            setIsLastQuestion(totalQuestions <= 1);
+          }
+        } catch (error) {
+          console.error("Error starting interview:", error);
+        } finally {
+          if (isMounted) {
+            setIsLoading(false);
+          }
+        }
+      } else {
+        // Use the provided session ID and set default questions until connected to backend
+        const questions =
+          type === "behavioral" ? behavioralQuestions : technicalQuestions;
+        setCurrentQuestion(questions[0]);
+        setQuestionIndex(0);
+        setIsLastQuestion(totalQuestions <= 1);
+      }
+    }
+
+    initializeInterview();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    interviewSessionId,
+    totalQuestions,
+    type,
+    behavioralQuestions,
+    technicalQuestions,
+  ]);
+
+  // Setup webcam and audio recording when component mounts
+  useEffect(() => {
+    let isMounted = true;
+
+    async function setupMediaDevices() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
 
-        videoStream = stream;
+        streamRef.current = stream;
 
-        if (videoRef.current) {
+        if (videoRef.current && isMounted) {
           videoRef.current.srcObject = stream;
         }
-        setIsConnected(true);
+
+        // Initialize media recorder for audio
+        if (isMounted) {
+          const audioStream = new MediaStream(stream.getAudioTracks());
+
+          // Configure MediaRecorder with better options for compatibility
+          // Check which MIME types are supported
+          const mimeTypes = [
+            "audio/webm",
+            "audio/webm;codecs=opus",
+            "audio/ogg;codecs=opus",
+            "audio/mp4",
+          ];
+
+          const supportedType =
+            mimeTypes.find((type) => MediaRecorder.isTypeSupported(type)) || "";
+          console.log(`Using MIME type: ${supportedType || "default"}`);
+
+          const recorder = new MediaRecorder(audioStream, {
+            mimeType: supportedType,
+            audioBitsPerSecond: 128000, // Higher quality audio
+          });
+
+          // Request data every 1 second for more reliable recordings
+          recorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              console.log(`Audio chunk received: ${event.data.size} bytes`);
+              // Update the ref
+              audioChunksRef.current = [...audioChunksRef.current, event.data];
+            }
+          };
+
+          recorder.onstop = async () => {
+            // Use the ref for reliable access to the chunks
+            const chunks = audioChunksRef.current;
+            console.log(
+              `Recording stopped, processing ${chunks.length} chunks`
+            );
+
+            if (chunks.length === 0) {
+              console.error("No audio data recorded");
+              setIsLoading(false); // Reset loading state if no audio chunks
+              return;
+            }
+
+            // Create audio blob with proper MIME type
+            const audioBlob = new Blob(chunks, { type: "audio/webm" });
+            console.log(
+              `Created audio blob: ${audioBlob.size} bytes, from ${chunks.length} chunks`
+            );
+
+            // Debug: log each chunk size
+            chunks.forEach((chunk, index) => {
+              console.log(`Chunk ${index}: ${chunk.size} bytes`);
+            });
+
+            // Reset chunks for next recording
+            audioChunksRef.current = [];
+
+            if (audioBlob.size === 0) {
+              console.error("Empty audio blob created");
+              setIsLoading(false); // Reset loading state if empty blob
+              return;
+            }
+
+            if (interviewSessionId) {
+              try {
+                // Note: loading state is already set in toggleRecording
+                console.log(
+                  `Submitting answer for question ${questionIndex + 1}`
+                );
+                const response = await submitAudioAnswer(
+                  interviewSessionId,
+                  audioBlob
+                );
+                console.log("Got response from server:", response);
+
+                // Handle the response from Groq transcription
+                if (response.evaluation) {
+                  setFeedback(
+                    `Score: ${response.evaluation.score}/10 - ${response.evaluation.feedback}`
+                  );
+                  console.log(
+                    `Feedback received: ${response.evaluation.feedback}`
+                  );
+                  setFeedbackReviewed(false); // Reset feedback review state
+                }
+
+                // Move to next question or end interview
+                if (response.done) {
+                  console.log("Interview complete");
+                  setIsLastQuestion(true);
+                } else if (response.next_question) {
+                  console.log(`Next question: ${response.next_question}`);
+                  setCurrentQuestion(response.next_question);
+                  const nextIndex = questionIndex + 1;
+                  setQuestionIndex(nextIndex);
+                  const isLastQ = nextIndex >= totalQuestions - 1;
+                  console.log(
+                    `Is last question: ${isLastQ} (index: ${nextIndex}, total: ${totalQuestions})`
+                  );
+                  setIsLastQuestion(isLastQ);
+                } else {
+                  console.error("No next question provided in response");
+                }
+              } catch (error) {
+                console.error("Error submitting audio:", error);
+              } finally {
+                setIsLoading(false);
+              }
+            }
+          };
+
+          setMediaRecorder(recorder);
+          setIsConnected(true);
+
+          // Start recording data at intervals when the recorder is started
+          if (recorder.state === "inactive") {
+            console.log("MediaRecorder initialized and ready");
+          }
+        }
       } catch (err) {
-        console.error("Error accessing webcam:", err);
-        setIsConnected(false);
+        console.error("Error accessing media devices:", err);
+        if (isMounted) {
+          setIsConnected(false);
+        }
       }
     }
 
-    setupWebcam();
+    setupMediaDevices();
 
-    // Set initial question
-    const questions =
-      type === "behavioral" ? behavioralQuestions : technicalQuestions;
-    setCurrentQuestion(questions[0]);
-    setQuestionIndex(0);
-    setIsLastQuestion(totalQuestions <= 1); // Check if this is the only question
-
-    // Cleanup function to stop video stream when component unmounts
+    // Cleanup function to stop all media when component unmounts
     return () => {
-      if (videoStream) {
-        const tracks = videoStream.getTracks();
+      isMounted = false;
+      if (streamRef.current) {
+        const tracks = streamRef.current.getTracks();
         tracks.forEach((track) => track.stop());
       }
+
+      // Clean up any interval
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+        recordingIntervalRef.current = null;
+      }
+
+      setMediaRecorder(null);
     };
-  }, [type, behavioralQuestions, technicalQuestions, totalQuestions]);
+  }, [interviewSessionId, questionIndex, totalQuestions]);
+
+  // Function to handle moving to the next question
+  const handleNextQuestion = () => {
+    console.log("Moving to next question...");
+    // Reset recording state for the next question
+    setHasRecorded(false);
+    setFeedback(null);
+    setFeedbackReviewed(false);
+
+    // Start recording for the next question
+    // We're relying on the current question and index set by the API response
+    if (!isRecording) {
+      toggleRecording();
+    }
+  };
 
   // Function to handle recording
   const toggleRecording = () => {
-    const newRecordingState = !isRecording;
-    setIsRecording(newRecordingState);
+    if (!isRecording) {
+      // Start recording
+      setIsRecording(true);
+      audioChunksRef.current = []; // Reset the audio chunks
 
-    // Here you would typically start/stop actual recording
-    // For now, just changing the state for UI purposes
+      // Clear any feedback when starting a new recording
+      if (hasRecorded) {
+        setFeedback(null);
+        setFeedbackReviewed(false);
+      }
 
-    if (newRecordingState) {
-      // If starting recording, keep current question
-      // Reset hasRecorded when starting a new recording
-      if (questionIndex === totalQuestions - 1) {
-        // If this is the last question, we're recording it now
-        setHasRecorded(false);
+      if (mediaRecorder) {
+        console.log("Starting audio recording...");
+        try {
+          // Clear any existing interval
+          if (recordingIntervalRef.current) {
+            clearInterval(recordingIntervalRef.current);
+            recordingIntervalRef.current = null;
+          }
+
+          // Request data every 300ms for more reliable capture
+          mediaRecorder.start(300);
+
+          // Force getting data at regular intervals
+          recordingIntervalRef.current = window.setInterval(() => {
+            if (mediaRecorder.state === "recording") {
+              mediaRecorder.requestData();
+              console.log("Requested data from MediaRecorder");
+            }
+          }, 1000);
+        } catch (err) {
+          console.error("Error starting recording:", err);
+        }
+      } else {
+        console.error("MediaRecorder not initialized");
       }
     } else {
-      // If stopping recording, mark that we've recorded at least once
+      // Stop recording and show loading immediately
+      setIsRecording(false);
       setHasRecorded(true);
+      setIsLoading(true); // Show loading state immediately
 
-      // Check if we just finished the last question
-      if (questionIndex === totalQuestions - 1) {
-        // We've completed the last question
-        setIsLastQuestion(true);
+      // Clear any recording interval
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+        recordingIntervalRef.current = null;
+      }
+
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        console.log("Stopping audio recording...");
+        try {
+          // Request a final chunk of data before stopping
+          mediaRecorder.requestData();
+          // Stop the recorder
+          mediaRecorder.stop();
+        } catch (err) {
+          console.error("Error stopping recording:", err);
+          setIsLoading(false); // Reset loading state if error occurs
+        }
       } else {
-        // Move to the next question if we're not at the end
-        const nextQuestionIndex = questionIndex + 1;
-
-        // Prepare the next question when stopping recording
-        const questions =
-          type === "behavioral" ? behavioralQuestions : technicalQuestions;
-        // To ensure we don't repeat questions, select based on the index
-        // Use modulo in case we have fewer questions than totalQuestions
-        const nextIndex = nextQuestionIndex % questions.length;
-        setCurrentQuestion(questions[nextIndex]);
-        setQuestionIndex(nextQuestionIndex);
-
-        // Check if the next question will be the last one
-        setIsLastQuestion(nextQuestionIndex === totalQuestions - 1);
+        console.error("MediaRecorder not active");
+        setIsLoading(false); // Reset loading state if not active
       }
     }
   };
@@ -164,6 +392,25 @@ export default function InterviewRoom() {
             Question {questionIndex + 1} of {totalQuestions}:
           </h3>
           <p>{currentQuestion}</p>
+
+          {feedback && (
+            <div className="feedback-box">
+              <h4>Feedback:</h4>
+              <p>{feedback}</p>
+              {!feedbackReviewed ? (
+                <button
+                  className="review-feedback-button"
+                  onClick={() => setFeedbackReviewed(true)}
+                >
+                  Review Feedback
+                </button>
+              ) : (
+                <div className="feedback-reviewed">
+                  <span>✓ Feedback reviewed</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -179,7 +426,12 @@ export default function InterviewRoom() {
 
           {isConnected && (
             <div className="video-overlay">
-              {!isRecording ? (
+              {isLoading ? (
+                <div className="loading-indicator">
+                  <div className="loading-spinner"></div>
+                  <span>Transcribing and analyzing your answer...</span>
+                </div>
+              ) : !isRecording ? (
                 // First question or just loaded the page
                 (questionIndex === 0 && !hasRecorded) ||
                 // Last question that hasn't been recorded yet
@@ -194,7 +446,11 @@ export default function InterviewRoom() {
                   </button>
                 ) : (
                   <div className="instruction-overlay">
-                    {hasRecorded ? "Ready for next question" : "Ready to start"}
+                    {hasRecorded
+                      ? `Click "Next Question" to continue with question ${
+                          questionIndex + 1
+                        }`
+                      : "Ready to start recording your answer"}
                   </div>
                 )
               ) : (
@@ -209,7 +465,13 @@ export default function InterviewRoom() {
       </div>
 
       <div className="interview-controls">
-        {isRecording ? (
+        {isLoading ? (
+          <button className="control-button" disabled>
+            {questionIndex === 0
+              ? "Loading first question"
+              : "Analyzing Response..."}
+          </button>
+        ) : isRecording ? (
           <button
             className="control-button stop-button"
             onClick={toggleRecording}
@@ -223,14 +485,15 @@ export default function InterviewRoom() {
             className="control-button end-button"
             onClick={handleEndInterview}
           >
-            End Interview
+            View Summary
           </button>
         ) : (
           hasRecorded &&
-          !isRecording && (
+          !isRecording &&
+          feedbackReviewed && (
             <button
               className="recording-button start-button"
-              onClick={toggleRecording}
+              onClick={handleNextQuestion}
               style={{ marginTop: "10px" }}
             >
               {questionIndex < totalQuestions - 1
