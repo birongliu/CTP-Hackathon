@@ -450,3 +450,31 @@ def summary():
         "evaluations": evals,
         "coach_tip": coach_tip
     })
+
+@bp.get("/user-interviews")
+def user_interviews():
+    success, result = get_user_id_from_auth(request.headers.get("Authorization"))
+    if not success:
+        abort(401, description=result)
+    
+    user_id = result
+    
+    # Get all sessions for the user
+    from db.supabase_db import get_user_sessions
+    sessions = get_user_sessions(user_id)
+    
+    # Format the sessions data
+    formatted_sessions = []
+    for session in sessions:
+        formatted_sessions.append({
+            "id": session["id"],
+            "track": session["track"],
+            "num_questions": session["num_questions"],
+            "status": session["status"],
+            "created_at": session["created_at"],
+            "finished_at": session["finished_at"]
+        })
+    
+    return jsonify({
+        "interviews": formatted_sessions
+    })

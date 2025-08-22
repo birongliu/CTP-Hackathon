@@ -26,6 +26,15 @@ def get_session(session_id: str) -> Dict[str, Any]:
     res = sb().table("sessions").select("*").eq("id", session_id).single().execute()
     return res.data
 
+def get_user_sessions(user_id: str) -> List[Dict[str, Any]]:
+    """Get all interview sessions for a user, ordered by most recent first."""
+    res = (sb().table("sessions")
+           .select("*")
+           .eq("user_id", user_id)
+           .order("created_at", desc=True)
+           .execute())
+    return res.data
+
 # --- QA ---
 def insert_question(session_id: str, turn_index: int, question: str) -> str:
     res = sb().table("qa_pairs").insert({
