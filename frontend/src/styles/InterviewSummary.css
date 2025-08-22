@@ -1,0 +1,87 @@
+/* Add these styles to your InterviewRoom.css file or create a new file */
+
+.summary-overall-box {
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  color: #e5e7eb;
+}
+
+.summary-score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 10px 0;
+  color: #22c55e;
+}
+
+.summary-feedback {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.summary-questions-container {
+  margin: 20px 0;
+}
+
+.summary-qa-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.summary-qa-box h4 {
+  margin-bottom: 8px;
+  color: #94a3b8;
+}
+
+.summary-question {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  color: #e5e7eb;
+}
+
+.summary-answer {
+  font-style: italic;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  color: #cbd5e1;
+}
+
+.summary-question-score {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #22c55e;
+}
+
+.summary-actions {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.interview-date {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .summary-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .summary-actions a,
+  .summary-actions button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}

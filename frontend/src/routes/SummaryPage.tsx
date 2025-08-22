@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, redirect } from "react-router-dom";
 import {
   getInterviewSummary,
   getTechnicalAudio,
@@ -14,7 +14,6 @@ interface Evaluation {
 export default function SummaryPage() {
   const { sessionId } = useParams();
   const navigate = useNavigate();
-
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
@@ -22,7 +21,6 @@ export default function SummaryPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [audioFiles, setAudioFiles] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     if (!sessionId) {
       setError("No session ID provided");
@@ -33,6 +31,11 @@ export default function SummaryPage() {
     async function fetchSummary() {
       try {
         // Get interview summary
+
+      if (!sessionId) {
+        return redirect("/");
+      }
+
         const summary = await getInterviewSummary(sessionId);
         setQuestions(summary.questions);
         setAnswers(summary.answers);

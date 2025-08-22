@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import React, { useState } from 'react';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 
@@ -18,10 +18,11 @@ export default function Navbar () {
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  
+  const path = useLocation()
+  const isInterview = path.pathname === "/interview"
   return (
     <>
-    <Navbar2 expand="lg" className="bg-body-tertiary">
+    {!isInterview && <Navbar2 expand="lg" className="bg-body-tertiary">
       <img src={Logo} className="logo" onClick={handleShow}></img>
       {show && (
         <Offcanvas show={show} onHide={handleClose}>
@@ -71,7 +72,7 @@ export default function Navbar () {
         </DropdownButton>
 
       </Navbar2.Collapse>
-    </Navbar2>
+    </Navbar2>}
     </>
   );
 }
