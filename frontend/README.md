@@ -1,11 +1,83 @@
-# React + TypeScript + Vite
+# Interview AI Application - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend for the Interview AI application, built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js (latest LTS version recommended)
+- npm or yarn
+- Backend service running (see the backend README)
+
+## Environment Setup
+
+1. Create a `.env` file in the frontend directory with the following variables:
+
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_API_URL=http://localhost:5000/api
+```
+
+## Installation
+
+1. Install dependencies:
+
+```bash
+npm install
+# or if you're using yarn
+yarn
+```
+
+2. Start the development server:
+
+```bash
+npm run dev
+# or with yarn
+yarn dev
+```
+
+The frontend will be available at `http://localhost:5173`.
+
+## Building for Production
+
+To create a production build:
+
+```bash
+npm run build
+# or with yarn
+yarn build
+```
+
+## Project Structure
+
+- `src/components/` - Reusable UI components
+  - `CodeEditor.tsx` - Code editor component for technical interviews
+  - `Navbar.tsx` - Navigation bar component
+  - `SignInForm.tsx` and `SignUpForm.tsx` - Authentication forms
+  - `SplitScreen.tsx` - Layout component for interview interface
+  
+- `src/routes/` - Application pages and routes
+  - `App.tsx` - Main application component
+  - `Behavioral.tsx` - Behavioral interview page
+  - `HomePage.tsx` - Landing page
+  - `InterviewRoom.tsx` - Main interview interface
+  - `Interviews.tsx` - List of interviews
+  - `InterviewSummary.tsx` - Post-interview summary
+  - `SignPage.tsx` - Authentication page
+
+## Technologies Used
+
+- React 19
+- TypeScript
+- Vite
+- React Router
+- Supabase for authentication
+- Bootstrap and React Bootstrap for UI components
+- Syntax highlighters for code display
+
+## Development
+
+The application uses Vite's hot module replacement for fast development cycles. Changes to code will be reflected immediately in the browser.
 
 ## Expanding the ESLint configuration
 
@@ -67,3 +139,4 @@ export default tseslint.config([
   },
 ])
 ```
+
