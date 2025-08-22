@@ -39,7 +39,7 @@ export default function Navbar () {
 
       )}
     
-      <Navbar2.Brand href="/" className="website-name">TechNova</Navbar2.Brand>
+      <Navbar2.Brand href="/" className="website-name">InterTech</Navbar2.Brand>
       <Navbar2.Toggle aria-controls="basic-navbar-nav" />
       <Navbar2.Collapse id="basic-navbar-nav">
         <Nav className="me-auto">
