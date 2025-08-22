@@ -21,13 +21,6 @@ export default function Navbar () {
   
   return (
     <>
-    {/* <nav>
-      <Link to='/'>Home</Link>
-      <Link to='/signin'>Sign In</Link>
-      <Link to='/signup'>Sign Up</Link>
-    </nav> */}
-    
-    
     <Navbar2 expand="lg" className="bg-body-tertiary">
         <img src={Logo} className="logo" onClick={handleShow}></img>
         {show && (

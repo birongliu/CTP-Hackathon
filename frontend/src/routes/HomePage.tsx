@@ -3,14 +3,20 @@ import { Link, useNavigate } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-export default function HomePage() {
+interface HomePageProps {
+  session?: any;
+}
+
+export default function HomePage({ session }: HomePageProps) {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const loadMe = async () => {
     setLoading(true);
-    const res = await fetch(`${API_BASE}/api/auth/me`, { credentials: "include" });
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
+      credentials: "include",
+    });
     const data = await res.json().catch(() => ({}));
     setUserEmail(data.user?.email ?? null);
     setLoading(false);
@@ -39,8 +45,15 @@ export default function HomePage() {
         </div>
 
         <nav style={styles.nav}>
-          <Link to="/interviews" style={styles.navLink}>My Interviews</Link>
-          <Link to="/start" style={{ ...styles.navLink, ...styles.ctaLink }}>New Interview</Link>
+          <Link to="/interviews" style={styles.navLink}>
+            My Interviews
+          </Link>
+          <Link
+            to="/interview"
+            style={{ ...styles.navLink, ...styles.ctaLink }}
+          >
+            New Interview
+          </Link>
         </nav>
 
         <div style={styles.userBox}>
@@ -48,16 +61,24 @@ export default function HomePage() {
             <span style={styles.muted}>Checking session…</span>
           ) : userEmail ? (
             <div style={styles.userRow}>
-              <div style={styles.avatarCircle}>{(userEmail[0] || "U").toUpperCase()}</div>
+              <div style={styles.avatarCircle}>
+                {(userEmail[0] || "U").toUpperCase()}
+              </div>
               <div style={styles.userMeta}>
                 <div style={styles.userEmail}>{userEmail}</div>
-                <button onClick={handleSignOut} style={styles.logoutBtn}>Log out</button>
+                <button onClick={handleSignOut} style={styles.logoutBtn}>
+                  Log out
+                </button>
               </div>
             </div>
           ) : (
             <div style={styles.authLinks}>
-              <Link to="/signin" style={styles.navLink}>Sign In</Link>
-              <Link to="/signup" style={{ ...styles.navLink, marginLeft: 12 }}>Sign Up</Link>
+              <Link to="/signin" style={styles.navLink}>
+                Sign In
+              </Link>
+              <Link to="/signup" style={{ ...styles.navLink, marginLeft: 12 }}>
+                Sign Up
+              </Link>
             </div>
           )}
         </div>
@@ -67,15 +88,22 @@ export default function HomePage() {
       <section style={styles.hero}>
         <h1 style={styles.heroTitle}>Welcome to Interview Prep</h1>
         <p style={styles.heroSubtitle}>
-          Practice <strong>behavioral</strong> and <strong>technical</strong> interviews with an AI coach.
-          You’ll get instant feedback, scores, and tips to improve faster.
+          Practice <strong>behavioral</strong> and <strong>technical</strong>{" "}
+          interviews with an AI coach. You’ll get instant feedback, scores, and
+          tips to improve faster.
         </p>
 
         <div style={styles.heroActions}>
-          <Link to="/start" style={{ ...styles.button, ...styles.buttonPrimary }}>
+          <Link
+            to="/interview"
+            style={{ ...styles.button, ...styles.buttonPrimary }}
+          >
             Start a New Interview
           </Link>
-          <Link to="/interviews" style={{ ...styles.button, ...styles.buttonGhost }}>
+          <Link
+            to="/interviews"
+            style={{ ...styles.button, ...styles.buttonGhost }}
+          >
             View My Interview History
           </Link>
         </div>
@@ -85,23 +113,38 @@ export default function HomePage() {
       <section style={styles.cards}>
         <div style={styles.card}>
           <h3 style={styles.cardTitle}>Behavioral Practice</h3>
-          <p style={styles.cardText}>Work through STAR-style prompts and get actionable feedback.</p>
-          <Link to="/start?track=behavioral" style={styles.cardLink}>Begin behavioral →</Link>
+          <p style={styles.cardText}>
+            Work through STAR-style prompts and get actionable feedback.
+          </p>
+          <Link to="/interview?type=behavioral" style={styles.cardLink}>
+            Begin behavioral →
+          </Link>
         </div>
         <div style={styles.card}>
           <h3 style={styles.cardTitle}>Technical Practice</h3>
-          <p style={styles.cardText}>Answer data structures & algorithms questions and get scored.</p>
-          <Link to="/start?track=technical" style={styles.cardLink}>Begin technical →</Link>
+          <p style={styles.cardText}>
+            Answer data structures & algorithms questions and get scored.
+          </p>
+          <Link to="/interview?type=technical" style={styles.cardLink}>
+            Begin technical →
+          </Link>
         </div>
         <div style={styles.card}>
           <h3 style={styles.cardTitle}>Your Progress</h3>
-          <p style={styles.cardText}>Review past sessions, answers, and AI evaluations over time.</p>
-          <Link to="/interviews" style={styles.cardLink}>Open history →</Link>
+          <p style={styles.cardText}>
+            Review past sessions, answers, and AI evaluations over time.
+          </p>
+          <Link to="/interviews" style={styles.cardLink}>
+            Open history →
+          </Link>
         </div>
       </section>
 
       <footer style={styles.footer}>
-        <span style={styles.muted}>© {new Date().getFullYear()} Interview Prep · Built for practice & growth</span>
+        <span style={styles.muted}>
+          © {new Date().getFullYear()} Interview Prep · Built for practice &
+          growth
+        </span>
       </footer>
     </div>
   );
@@ -153,7 +196,11 @@ const styles: Record<string, React.CSSProperties> = {
   },
   userBox: { display: "flex", justifyContent: "flex-end" },
   userRow: { display: "flex", alignItems: "center", gap: 10 },
-  userMeta: { display: "flex", flexDirection: "column", alignItems: "flex-end" },
+  userMeta: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+  },
   userEmail: { fontSize: 13, color: "#cbd5e1" },
   logoutBtn: {
     marginTop: 4,
