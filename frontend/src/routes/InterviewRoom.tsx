@@ -467,9 +467,7 @@ export default function InterviewRoom() {
       <div className="interview-controls">
         {isLoading ? (
           <button className="control-button" disabled>
-            {questionIndex === 0
-              ? "Loading first question"
-              : "Analyzing Response..."}
+            {"Analyzing Response..."}
           </button>
         ) : isRecording ? (
           <button

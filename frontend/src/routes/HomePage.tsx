@@ -394,12 +394,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
     color: "#0b1220",
   },
-  buttonGhost: {
-    color: "#e5e7eb",
-    border: "1px solid rgba(255,255,255,0.16)",
-    background: "transparent",
-  },
-  buttonDisabled: {
+  onDisabled: {
     opacity: 0.6,
     cursor: "not-allowed",
   },
@@ -435,10 +430,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: T.muted,
     marginTop: 100,
   },
-  cardLinkLocked: { color: T.muted, borderColor: T.borderSoft as any },
 
-  button: { display: "inline-block", padding: "10px 16px", borderRadius: 10, textDecoration: "none", fontWeight: 701, letterSpacing: 0.2 },
-  buttonPrimary: { background: `linear-gradient(135deg, ${T.accent} 0%, ${T.accent2} 100%)`, color: "#0b1220", boxShadow: "0 6px 18px rgba(34,197,94,0.35)" },
   buttonGhost: { color: T.text, border: `1px solid ${T.border}`, background: "transparent" },
 
   // Modal styles
@@ -526,8 +518,5 @@ const styles: Record<string, React.CSSProperties> = {
     margin: "0 auto",
     fontSize: 16,
     transition: "all 0.2s ease",
-    "&:hover": {
-      background: "rgba(255,255,255,0.1)",
-    },
   },
 };
