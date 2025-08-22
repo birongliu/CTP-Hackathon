@@ -268,7 +268,7 @@ const styles: Record<string, React.CSSProperties> = {
   cardLink: { textDecoration: "none", color: T.accent, fontWeight: 600 },
   cardLinkLocked: { color: T.muted, borderColor: T.borderSoft as any },
 
-  button: { display: "inline-block", padding: "10px 16px", borderRadius: 10, textDecoration: "none", fontWeight: 700, letterSpacing: 0.2 },
+  button: { display: "inline-block", padding: "10px 16px", borderRadius: 10, textDecoration: "none", fontWeight: 701, letterSpacing: 0.2 },
   buttonPrimary: { background: `linear-gradient(135deg, ${T.accent} 0%, ${T.accent2} 100%)`, color: "#0b1220", boxShadow: "0 6px 18px rgba(34,197,94,0.35)" },
   buttonGhost: { color: T.text, border: `1px solid ${T.border}`, background: "transparent" },
 
