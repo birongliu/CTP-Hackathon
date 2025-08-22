@@ -78,8 +78,8 @@
     align-items: center;
     gap: 10px;
   }
-  
-  .summary-actions a, 
+
+  .summary-actions a,
   .summary-actions button {
     width: 100%;
     margin: 5px 0;

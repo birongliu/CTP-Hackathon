@@ -28,7 +28,9 @@ export default function HomePage() {
   const loadMe = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/auth/me`, { credentials: "include" });
+      const res = await fetch(`${API_BASE}/api/auth/me`, {
+        credentials: "include",
+      });
       const data = await res.json().catch(() => ({}));
       setUserEmail(data.user?.email ?? null);
     } catch {
@@ -39,12 +41,17 @@ export default function HomePage() {
   };
 
   const handleSignOut = async () => {
-    await fetch(`${API_BASE}/api/auth/logout`, { method: "POST", credentials: "include" });
+    await fetch(`${API_BASE}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
     setUserEmail(null);
     navigate("/signin");
   };
 
-  useEffect(() => { loadMe(); }, []);
+  useEffect(() => {
+    loadMe();
+  }, []);
 
   const loggedIn = !!userEmail;
 
@@ -115,16 +122,24 @@ export default function HomePage() {
             <span style={styles.muted}>Checking session…</span>
           ) : loggedIn ? (
             <div style={styles.userRow}>
-              <div style={styles.avatarCircle}>{(userEmail![0] || "U").toUpperCase()}</div>
+              <div style={styles.avatarCircle}>
+                {(userEmail![0] || "U").toUpperCase()}
+              </div>
               <div style={styles.userMeta}>
                 <div style={styles.userEmail}>{userEmail}</div>
-                <button onClick={handleSignOut} style={styles.logoutBtn}>Log out</button>
+                <button onClick={handleSignOut} style={styles.logoutBtn}>
+                  Log out
+                </button>
               </div>
             </div>
           ) : (
             <div style={styles.authLinks}>
-              <Link to="/signin" style={styles.navLink}>Sign In</Link>
-              <Link to="/signup" style={{ ...styles.navLink, ...styles.pill }}>Sign Up</Link>
+              <Link to="/signin" style={styles.navLink}>
+                Sign In
+              </Link>
+              <Link to="/signup" style={{ ...styles.navLink, ...styles.pill }}>
+                Sign Up
+              </Link>
             </div>
           )}
         </div>
@@ -268,7 +283,9 @@ export default function HomePage() {
       </section>
 
       <footer style={styles.footer}>
-        <span style={styles.muted}>© {new Date().getFullYear()} Interview Prep · Practice & Grow</span>
+        <span style={styles.muted}>
+          © {new Date().getFullYear()} Interview Prep · Practice & Grow
+        </span>
       </footer>
     </div>
   );
@@ -285,8 +302,31 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "Inter, system-ui, Avenir, Helvetica, Arial, sans-serif",
     position: "relative",
   },
-  bgGlowTL: { position: "absolute", inset: "0 auto auto 0", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(34,197,94,0.18), transparent 60%)", filter: "blur(30px)", pointerEvents: "none", transform: "translate(-30%, -30%)" },
-  bgGlowBR: { position: "absolute", right: 0, bottom: 0, width: 320, height: 320, borderRadius: "50%", background: "radial-gradient(circle, rgba(148,163,184,0.18), transparent 60%)", filter: "blur(40px)", pointerEvents: "none", transform: "translate(20%, 20%)" },
+  bgGlowTL: {
+    position: "absolute",
+    inset: "0 auto auto 0",
+    width: 280,
+    height: 280,
+    borderRadius: "50%",
+    background:
+      "radial-gradient(circle, rgba(34,197,94,0.18), transparent 60%)",
+    filter: "blur(30px)",
+    pointerEvents: "none",
+    transform: "translate(-30%, -30%)",
+  },
+  bgGlowBR: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    width: 320,
+    height: 320,
+    borderRadius: "50%",
+    background:
+      "radial-gradient(circle, rgba(148,163,184,0.18), transparent 60%)",
+    filter: "blur(40px)",
+    pointerEvents: "none",
+    transform: "translate(20%, 20%)",
+  },
 
   header: {
     display: "grid",
@@ -305,12 +345,36 @@ const styles: Record<string, React.CSSProperties> = {
   logo: { fontSize: 22 },
   brandText: { fontWeight: 800, letterSpacing: 0.3, color: T.accent },
 
-  nav: { display: "flex", alignItems: "center", gap: 10, justifyContent: "center" },
-  navLink: { color: "#cbd5e1", textDecoration: "none", padding: "8px 12px", borderRadius: 8, border: "1px solid transparent" },
+  nav: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    justifyContent: "center",
+  },
+  navLink: {
+    color: "#cbd5e1",
+    textDecoration: "none",
+    padding: "8px 12px",
+    borderRadius: 8,
+    border: "1px solid transparent",
+  },
   userBox: { display: "flex", justifyContent: "flex-end" },
   userRow: { display: "flex", alignItems: "center", gap: 10 },
-  avatarCircle: { width: 32, height: 32, borderRadius: "50%", display: "grid", placeItems: "center", background: T.accent, color: "#0b1220", fontWeight: 700 },
-  userMeta: { display: "flex", flexDirection: "column", alignItems: "flex-end" },
+  avatarCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: "50%",
+    display: "grid",
+    placeItems: "center",
+    background: T.accent,
+    color: "#0b1220",
+    fontWeight: 700,
+  },
+  userMeta: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+  },
   userEmail: { fontSize: 13, color: "#cbd5e1" },
   logoutBtn: {
     marginTop: 4,
@@ -386,9 +450,111 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 14,
     padding: 16,
   },
-  cardTitle: { margin: "2px 0 8px", color: T.heading, fontWeight: 700, fontSize: 18 },
+  cardTitle: {
+    margin: "2px 0 8px",
+    color: T.heading,
+    fontWeight: 700,
+    fontSize: 18,
+  },
   cardText: { color: "#cbd5e1", lineHeight: 1.5, marginBottom: 12 },
   cardLink: { textDecoration: "none", color: T.accent, fontWeight: 600 },
   cardLinkLocked: { color: T.muted, borderColor: T.borderSoft },
-  footer: { borderTop: `1px solid ${T.borderSoft}`, padding: "16px 22px", textAlign: "center" as const, fontSize: 13, color: T.muted, marginTop: 100 },
+  footer: {
+    borderTop: `1px solid ${T.borderSoft}`,
+    padding: "16px 22px",
+    textAlign: "center" as const,
+    fontSize: 13,
+    color: T.muted,
+    marginTop: 100,
+  },
+
+  // Modal styles
+  modal: {
+    position: "fixed" as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    zIndex: 1000,
+    backdropFilter: "blur(4px)",
+    animation: "fadeIn 0.2s ease-out",
+  },
+  modalContent: {
+    backgroundColor: T.bg2,
+    borderRadius: 16,
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+    padding: 24,
+    maxWidth: "600px",
+    width: "90%",
+    border: `1px solid ${T.border}`,
+    animation: "scaleIn 0.2s ease-out",
+    position: "relative" as const,
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: 700,
+    color: T.heading,
+    marginBottom: 10,
+    textAlign: "center" as const,
+  },
+  modalText: {
+    color: T.muted,
+    textAlign: "center" as const,
+    fontSize: 16,
+    marginBottom: 24,
+  },
+  modalButtons: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: 16,
+    marginBottom: 24,
+  },
+  typeButton: {
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "flex-start",
+    padding: 20,
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: 12,
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    textAlign: "left" as const,
+    color: T.text,
+    // Hover state handled with CSS classes
+  },
+  typeIcon: {
+    fontSize: 28,
+    marginBottom: 12,
+  },
+  typeTitle: {
+    fontSize: 20,
+    fontWeight: 700,
+    color: T.heading,
+    marginBottom: 6,
+  },
+  typeDesc: {
+    fontSize: 15,
+    color: T.muted,
+    lineHeight: 1.5,
+  },
+  closeButton: {
+    padding: "10px 20px",
+    background: "rgba(255,255,255,0.05)",
+    border: `1px solid ${T.border}`,
+    borderRadius: 8,
+    color: T.muted,
+    cursor: "pointer",
+    width: "fit-content",
+    margin: "0 auto",
+    fontSize: 16,
+    transition: "all 0.2s ease",
+    "&:hover": {
+      background: "rgba(255,255,255,0.1)",
+    },
+  },
 };
