@@ -47,9 +47,9 @@ export default function Navbar () {
           <Nav.Link href="/interview">Behavioral</Nav.Link>
           
           <NavDropdown title="Technical" id="basic-nav-dropdown">
-            <NavDropdown.Item href="#action/3.1">Software Engineering</NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.2">Data Science</NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.3">Product Management</NavDropdown.Item>
+            <NavDropdown.Item href="/technical">Software Engineering</NavDropdown.Item>
+            <NavDropdown.Item href="/technical">Data Science</NavDropdown.Item>
+            <NavDropdown.Item href="/technical">Product Management</NavDropdown.Item>
           </NavDropdown>
         </Nav>
 
@@ -66,7 +66,7 @@ export default function Navbar () {
           }
         >
           
-        <Dropdown.Item as={Link} to="/signin">Login</Dropdown.Item>
+        <Dropdown.Item as={Link} to="/signin">Log in</Dropdown.Item>
         <Dropdown.Item as={Link} to="/signup">Register</Dropdown.Item>
           
         </DropdownButton>
