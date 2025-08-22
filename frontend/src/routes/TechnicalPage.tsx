@@ -1,4 +1,5 @@
 import CodeEditor from "../components/CodeEditor"
+import Navbar from "../components/Navbar"
 import SplitScreen from '../components/SplitScreen'
 
 const initialCode = `print("hello world")`
@@ -20,6 +21,7 @@ const RightComponent = () => {
 function TechnicalPage () {
   return (
     <>
+        <Navbar />
         <SplitScreen >
             <LeftComponent />
             <RightComponent />

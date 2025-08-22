@@ -93,31 +93,7 @@ export default function HomePage() {
       <div style={styles.bgGlowBR} />
 
       {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.brand} onClick={() => navigate("/")}>
-          <span style={styles.logo}>🤖</span>
-          <span style={styles.brandText}>Interview Prep</span>
-        </div>
-
-        <nav style={styles.nav}>
-          <Link to="/interviews" style={styles.navLink}>
-            My Interviews
-          </Link>
-          <button
-            onClick={handleNewInterview}
-            style={{
-              ...styles.navLink,
-              ...styles.ctaLink,
-              border: "none",
-              cursor: "pointer",
-            }}
-            disabled={isStartingInterview}
-          >
-            {isStartingInterview ? "Starting..." : "New Interview"}
-          </button>
-        </nav>
-
-        <div style={styles.userBox}>
+      <div style={styles.userBox}>
           {loading ? (
             <span style={styles.muted}>Checking session…</span>
           ) : loggedIn ? (
@@ -133,17 +109,9 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            <div style={styles.authLinks}>
-              <Link to="/signin" style={styles.navLink}>
-                Sign In
-              </Link>
-              <Link to="/signup" style={{ ...styles.navLink, ...styles.pill }}>
-                Sign Up
-              </Link>
-            </div>
+            <div style={styles.muted}>You're not signed in.</div>
           )}
         </div>
-      </header>
 
       {/* Hero */}
       <section style={styles.hero}>
