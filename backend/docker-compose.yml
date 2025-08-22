@@ -1,5 +1,5 @@
 services:
-  backend:
+  ctp_hackathon:
     build: 
       context: .
       dockerfile: Dockerfile
