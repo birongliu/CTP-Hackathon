@@ -7,7 +7,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   position: relative;
-  background-color: #c0c0c0;
+  background-color: rgba(255,255,255,0.04);
   font-family: 'Fira Code', 'Dank Mono', 'Consolas', monospace;
   font-size: 16px;
   line-height: 1.6;
@@ -17,6 +17,7 @@
 }
 .question-box {
   padding: 16px;
+  max-width: 100%;
   font-family: 'Inter', system-ui, 'Avenir', Helvetica, Arial, sans-serif;
 }
 /*Code Block*/
@@ -29,7 +30,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   position: relative;
-  background-color: #c0c0c0;
+  background-color: rgba(255,255,255,0.04);
 }
 .scroll-container {
   height: 100%;
@@ -47,7 +48,7 @@
   font-family: 'Fira Code', 'Dank Mono', 'Consolas', monospace;
   font-size: 16px;
   line-height: 1.6;
-  color: #24292e;
+  color: #e9ecef;
   background-color: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -63,11 +64,12 @@
   min-width: 50px;
   overflow: hidden;
   padding: 8px;
+  background-color: #0f172a;
 }
 .split-bar {
   width: 5px;
   cursor: col-resize;
-  background-color: #ced4da;
+  background-color: #3d4453;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,4 +79,5 @@
   min-width: 50px;
   overflow: hidden;
   padding: 8px;
+  background-color: #0f172a;
 }
