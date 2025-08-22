@@ -43,16 +43,18 @@ export default function InterviewSummary() {
       try {
         // Get authentication session
         const session = await supabase.auth.getSession();
-        
+
         // Prepare auth header
         const headers: Record<string, string> = {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         };
-        
+
         if (session.data.session) {
-          headers["Authorization"] = `Bearer ${session.data.session.access_token}`;
+          headers[
+            "Authorization"
+          ] = `Bearer ${session.data.session.access_token}`;
         }
-        
+
         // Fetch the interview summary data from API
         const response = await fetch(
           `${API_BASE_URL}/api/interview/summary?session_id=${sessionId}`,
@@ -74,20 +76,24 @@ export default function InterviewSummary() {
 
         // Process and format the data
         const formattedData: InterviewData = {
-          sessionId: sessionId || '',
+          sessionId: sessionId || "",
           type: "Interview", // Default type since it's not in the response
           questions: [],
           date: new Date().toLocaleString(), // Current date since timestamp is not provided
         };
 
         // Extract questions and answers directly from the response
-        if (data.questions && Array.isArray(data.questions) && 
-            data.answers && Array.isArray(data.answers)) {
+        if (
+          data.questions &&
+          Array.isArray(data.questions) &&
+          data.answers &&
+          Array.isArray(data.answers)
+        ) {
           // Map questions and answers to the expected format
           data.questions.forEach((question: string, index: number) => {
             formattedData.questions.push({
               question,
-              answer: data.answers[index] || "No answer recorded"
+              answer: data.answers[index] || "No answer recorded",
             });
           });
         }
@@ -106,7 +112,7 @@ export default function InterviewSummary() {
             }
           );
         }
-        
+
         // Add the coach tip if available
         if (data.coach_tip) {
           formattedData.overallFeedback = data.coach_tip;
