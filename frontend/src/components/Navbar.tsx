@@ -22,39 +22,40 @@ export default function Navbar () {
   return (
     <>
     <Navbar2 expand="lg" className="bg-body-tertiary">
-        <img src={Logo} className="logo" onClick={handleShow}></img>
-        {show && (
-          <Offcanvas show={show} onHide={handleClose}>
-            <Offcanvas.Header closeButton>
-            <img src={Logo} className="logo" onClick={handleShow}></img>
-            </Offcanvas.Header>
-            <Offcanvas.Title>New Chat</Offcanvas.Title>
-            <Offcanvas.Title>History</Offcanvas.Title>
-            <Offcanvas.Body>
-              Some text as placeholder. In real life you can have the elements you
-              have chosen. Like, text, images, lists, etc.
-            </Offcanvas.Body>
-          </Offcanvas>
+      <img src={Logo} className="logo" onClick={handleShow}></img>
+      {show && (
+        <Offcanvas show={show} onHide={handleClose}>
+          <Offcanvas.Header closeButton>
+          <img src={Logo} className="logo" onClick={handleShow}></img>
+          </Offcanvas.Header>
+          <Offcanvas.Title>New Chat</Offcanvas.Title>
+          <Offcanvas.Title>History</Offcanvas.Title>
+          <Offcanvas.Body>
+            Some text as placeholder. In real life you can have the elements you
+            have chosen. Like, text, images, lists, etc.
+          </Offcanvas.Body>
+        </Offcanvas>
 
-        )}
-
-        <Navbar2.Brand href="#home">TechNova</Navbar2.Brand>
-        <Navbar2.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar2.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link href="/">Home</Nav.Link>
-            <Nav.Link href="/behavioral">Behavioral</Nav.Link>
-            
-            <NavDropdown title="Technical" id="basic-nav-dropdown">
-              <NavDropdown.Item href="#action/3.1">Software Engineering</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2">Data Science</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">Product Management</NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
-        </Navbar2.Collapse>
+      )}
+    
+      <Navbar2.Brand href="/" className="website-name">TechNova</Navbar2.Brand>
+      <Navbar2.Toggle aria-controls="basic-navbar-nav" />
+      <Navbar2.Collapse id="basic-navbar-nav">
+        <Nav className="me-auto">
+          <Nav.Link href="/">Home</Nav.Link>
+          <Nav.Link href="/interview">Behavioral</Nav.Link>
+          
+          <NavDropdown title="Technical" id="basic-nav-dropdown">
+            <NavDropdown.Item href="#action/3.1">Software Engineering</NavDropdown.Item>
+            <NavDropdown.Item href="#action/3.2">Data Science</NavDropdown.Item>
+            <NavDropdown.Item href="#action/3.3">Product Management</NavDropdown.Item>
+          </NavDropdown>
+        </Nav>
 
         <DropdownButton
           id="dropdown-profile-btn"
+          drop="down-centered"
+          align="end"
           title={
             <img
               src={ProfilePic}
@@ -63,9 +64,13 @@ export default function Navbar () {
             />
           }
         >
-          <Dropdown.Item as={Link} to="/signin">Login</Dropdown.Item>
-          <Dropdown.Item as={Link} to="/signup">Sign-up</Dropdown.Item>
+          
+        <Dropdown.Item as={Link} to="/signin">Login</Dropdown.Item>
+        <Dropdown.Item as={Link} to="/signup">Register</Dropdown.Item>
+          
         </DropdownButton>
+
+      </Navbar2.Collapse>
     </Navbar2>
     </>
   );

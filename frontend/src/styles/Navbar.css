@@ -2,6 +2,20 @@
     max-width: 30px;
     max-height: 30px;
     margin-right: 10px;
+
+    transition: transform 0.3s ease;
+}
+
+.logo:hover{
+    transform: scale(1.1);
+}
+
+.website-name {
+    transition: transform 0.3s ease;
+}
+
+.website-name:hover{
+    transform: scale(1.1);
 }
 
 .bg-body-tertiary {
@@ -10,6 +24,8 @@
 
 #dropdown-profile-btn {
     margin-right: 20px;
+    background-color: aliceblue;
+    border: none;
     transition: transform 0.3s ease;
 }
 

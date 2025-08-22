@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom'
 import HomePage from './HomePage'
 import SignUpForm from '../components/SignUpForm'
 import SignInForm from '../components/SignInForm'
+import Behavioral from '../routes/InterviewRoom'
 
 function App () {
   const [session, setSession] = useState<Session | null>(null)
@@ -31,7 +32,7 @@ function App () {
     }
 
     switch (location.pathname) {
-      case '/behavioral':
+      case '/interview':
         return <Behavioral />
       case '/signin':
         return <SignInForm />

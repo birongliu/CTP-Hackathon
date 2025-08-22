@@ -1,7 +1,19 @@
-.form-text {
-    display: block;
-    text-align: left;
-    /* background-color: beige; */
+/* bg: #0f172a */
+.container-bg{
+    background-color: #0f172a;
+    padding: 130px;
+}
+
+.container {
+  background-color: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: grid;
+  place-items: center;
+  width: fit-content; 
+  height: fit-content; 
+  border-radius: 20px;
+  padding: 50px;
+  margin-top: 50px;
 }
 
 #logo {
@@ -10,6 +22,33 @@
     margin-bottom: 30px;
 }
 
+h2, h6, p {
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+.form-text {
+    display: block;
+    text-align: left;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+input[type="email"], input[type="password"] {
+  width: 300px; /* Adjust this value to your desired width */
+}
+
+.submit-btn{
+    display: flex;
+    justify-content: center;
+}
+
+.submit-btn-txt{
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #0b1220;
+    border: none;
+}
+
 .question-link {
-    margin-top: 10px;
+    margin-top: 20px;
 }

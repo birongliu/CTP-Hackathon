@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import "../styles/InterviewRoom.css";
 
+import Navbar from '../components/Navbar'
+
 export default function InterviewRoom() {
   const { sessionId } = useParams();
   const location = useLocation();
@@ -134,6 +136,8 @@ export default function InterviewRoom() {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="interview-room">
       <div className="interview-header">
         <h2>
@@ -237,5 +241,6 @@ export default function InterviewRoom() {
         )}
       </div>
     </div>
+    </>
   );
 }
