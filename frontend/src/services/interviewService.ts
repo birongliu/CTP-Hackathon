@@ -191,7 +191,7 @@ export const getTechnicalAudio = async (
   try {
     const headers = await getAuthHeader();
 
-    let url = `/technical-audio?session_id=${sessionId}`;
+    let url = `${API_BASE_URL}/api/interview/technical-audio?session_id=${sessionId}`;
     if (turnIndex !== undefined) {
       url += `&turn_index=${turnIndex}`;
     }

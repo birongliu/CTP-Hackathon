@@ -346,6 +346,7 @@ def answer():
 
     # 4) evaluate + possibly ask next question
     eval_out = evaluate_and_next_logic(cur["question"], user_answer, history)
+    print(eval_out)
     score, feedback = eval_out["score"], eval_out["feedback"]
     next_q = eval_out["next_question"]
     new_history = eval_out["history"]
