@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import '../styles/App.css';
-import Navbar from '../components/Navbar';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import HomePage from './HomePage';
-import SignUpForm from '../components/SignUpForm';
-import SignInForm from '../components/SignInForm';
 
 type MeResponse = { user: { id: string; email?: string } | null };
 
@@ -12,7 +9,6 @@ function App() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const navigate = useNavigate();
 
   async function loadMe() {
     setLoading(true);
@@ -27,36 +23,16 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    loadMe();
-  }, []);
-
-  // Optional: refresh /me when you navigate back from sign in/up
-  useEffect(() => {
-    if (location.pathname === '/') loadMe();
-  }, [location.pathname]);
-
-  const renderPage = () => {
-    switch (location.pathname) {
-      case '/signin':
-        return <SignInForm />; // these forms POST to /api/auth/login|signup
-      case '/signup':
-        return <SignUpForm />;
-      case '/':
-      default:
-        // HomePage no longer needs Session; just pass email (or nothing)
-        return <HomePage />; // or make HomePage read /api/auth/me itself
-    }
-  };
+  useEffect(() => { loadMe(); }, []);
+  useEffect(() => { if (location.pathname === '/') loadMe(); }, [location.pathname]);
 
   return (
     <div>
-      <Navbar />
-      <main>
+      <main style={{ minHeight: 'calc(100vh - 64px)' }}>
         {loading ? (
           <div style={{ padding: '1rem' }}>Loading…</div>
         ) : (
-          renderPage()
+          <HomePage userEmail={userEmail} reloadUser={loadMe} />
         )}
       </main>
     </div>
