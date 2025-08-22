@@ -23,7 +23,8 @@
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.1",
     "react-syntax-highlighter": "^15.6.3",
-    "styled": "^1.0.0"
+    "styled": "^1.0.0",
+    "styled-components": "^6.1.19"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
