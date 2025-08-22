@@ -1,0 +1,239 @@
+/* Interview Room Styles */
+.interview-room {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+.interview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.interview-header h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.session-id {
+  font-size: 0.8em;
+  opacity: 0.7;
+  margin-left: 8px;
+  font-weight: normal;
+}
+
+.interview-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-connected {
+  color: #22c55e;
+  display: flex;
+  align-items: center;
+}
+
+.status-connected::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-disconnected {
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+}
+
+.status-disconnected::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.question-container {
+  padding: 0 20px;
+  margin-top: 20px;
+}
+
+.question-box {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.question-box h3 {
+  margin: 0 0 8px 0;
+  color: #a7f3d0;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.question-box p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.interview-content {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.video-container {
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 16/9;
+  background-color: #d1d5db; /* This is the gray area for video */
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  margin: 20px auto;
+}
+
+.video-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+}
+
+.video-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.recording-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  pointer-events: all;
+  transition: all 0.2s ease;
+}
+
+.start-button {
+  background-color: #16a34a;
+  color: white;
+}
+
+.start-button:hover {
+  background-color: #15803d;
+}
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 14px;
+}
+
+.instruction-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.recording-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Chat container removed */
+
+.interview-controls {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 15px;
+}
+
+.control-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.end-button {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+}
+
+.end-button:hover {
+  background-color: #b91c1c;
+}
+
+.stop-button {
+  background-color: #f59e0b;
+  color: #0f172a;
+  border: none;
+}
+
+.stop-button:hover {
+  background-color: #d97706;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .video-container {
+    width: 95%;
+    aspect-ratio: 16/9;
+    margin: 10px auto;
+  }
+}
